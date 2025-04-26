@@ -1,6 +1,61 @@
-SDFLKDFKJSD 
-SDLFKJ89
-SDSDLFJ
-SAFKJSF
-\SDF,JK
+import random
+
+GRID_SIZE = 10
+NUM_POINTS = 100
+NUM_CLUSTERS = 10
+MAX_ITER = 100
+
+
+points = [(random.randint(0, GRID_SIZE-1), random.randint(0, GRID_SIZE-1)) for _ in range(NUM_POINTS)]
+clusters = [(random.randint(0, GRID_SIZE-1), random.randint(0, GRID_SIZE-1)) for _ in range(NUM_CLUSTERS)]
+
+def manhattan_distance(p1, p2):
+    return abs(p1[0] - p2[0]) + abs(p1[1] - p2[1])
+
+def assign_clusters(points, clusters):
+    assignments = []
+    for p in points:
+        distances = [manhattan_distance(p, c) for c in clusters]
+        assignments.append(distances.index(min(distances)))
+    return assignments
+
+def update_centers(points, assignments, k):
+    new_centers = []
+    for i in range(k):
+        cluster_points = [p for p, a in zip(points, assignments) if a == i]
+        if cluster_points:
+            avg_x = sum(p[0] for p in cluster_points) // len(cluster_points)
+            avg_y = sum(p[1] for p in cluster_points) // len(cluster_points)
+            new_centers.append((avg_x, avg_y))
+        else:
+            
+            new_centers.append((random.randint(0, GRID_SIZE-1), random.randint(0, GRID_SIZE-1)))
+    return new_centers
+
+
+for _ in range(MAX_ITER):
+    assignments = assign_clusters(points, clusters)
+    new_clusters = update_centers(points, assignments, NUM_CLUSTERS)
+    if new_clusters == clusters:
+        break
+    clusters = new_clusters
+
+
+matrix = [['.' for _ in range(GRID_SIZE)] for _ in range(GRID_SIZE)]
+
+
+for point in points:
+    x, y = point
+    matrix[y][x] = '*'
+
+
+for cx, cy in clusters:
+    matrix[cy][cx] = 'C'
+
+
+print("Clustered Data Grid (C = Cluster Center, * = Data Point):\n")
+for row in matrix[::-1]:  
+    print(' '.join(row))
+
+
 
